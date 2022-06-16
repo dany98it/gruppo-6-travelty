@@ -40,7 +40,52 @@ class Setting extends StatelessWidget {
           ),
         ],
       ),
-      body: const SettingList(),
+      body: Column(
+        children: [
+          const Expanded(
+            child: SettingList(),
+          ),
+          Padding(
+            padding: const EdgeInsets.only(top: 10, bottom: 50),
+            child: IntrinsicWidth(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  TextButton(
+                    style: TextButton.styleFrom(
+                      backgroundColor: const Color(0XFF4C8F38),
+                    ),
+                    onPressed: () {},
+                    child: const Text(
+                      "Elimina account",
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontSize: 24,
+                      ),
+                    ),
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(top: 10),
+                    child: TextButton(
+                      style: TextButton.styleFrom(
+                        backgroundColor: const Color(0XFF4C8F38),
+                      ),
+                      onPressed: () {},
+                      child: const Text(
+                        "Logout",
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 24,
+                        ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }
@@ -50,17 +95,41 @@ class SettingList extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      children: [
-        for (int i = 0; i < 10; i++) const SettingItem(),
+    return CustomScrollView(
+      shrinkWrap: true,
+      slivers: [
+        SliverPadding(
+            padding: const EdgeInsets.all(20.0),
+            sliver: SliverList(
+              delegate: SliverChildListDelegate(
+                [
+                  for (int i = 0; i < 20; i++)
+                    SettingItem(
+                      key: Key("Setting$i"),
+                    ),
+                ],
+              ),
+            )),
       ],
     );
   }
 }
 
-//TODO: diventare Stateful cosi da rimanere attivo aggiungere un costruttore che accetta il valore
-class SettingItem extends StatelessWidget {
+class SettingItem extends StatefulWidget {
   const SettingItem({Key? key}) : super(key: key);
+
+  @override
+  State<SettingItem> createState() => _SettingItemState();
+}
+
+class _SettingItemState extends State<SettingItem> {
+  bool b = false;
+
+  void change() {
+    setState(() {
+      b = !b;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -78,8 +147,10 @@ class SettingItem extends StatelessWidget {
         ],
       ),
       trailing: Switch(
-        value: false,
-        onChanged: (val) {},
+        value: b,
+        onChanged: (val) {
+          change();
+        },
       ),
     );
   }

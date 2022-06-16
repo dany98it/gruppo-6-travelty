@@ -1,6 +1,7 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:travelty/profilo.dart';
 import 'package:travelty/setting.dart';
 
 import 'home.dart';
@@ -35,8 +36,17 @@ class MyPage extends StatefulWidget {
 }
 
 class _MyPageState extends State<MyPage> {
-  Widget currentPage = const Home();
+  late Widget currentPage;
   var navigation = ListQueue<Widget>();
+
+  @override
+  void initState() {
+    currentPage = Home(
+      nextPage: nextPage,
+      previewPage: previewPage,
+    );
+    super.initState();
+  }
 
   void nextPage(Widget page) {
     setState(() {
@@ -59,7 +69,12 @@ class _MyPageState extends State<MyPage> {
       body: currentPage,
       floatingActionButton: FloatingActionButton.large(
         onPressed: () {
-          nextPage(const Home());
+          nextPage(
+            Home(
+              nextPage: nextPage,
+              previewPage: previewPage,
+            ),
+          );
         },
         tooltip: 'home',
         shape: const CircleBorder(),
@@ -86,8 +101,18 @@ class _MyPageState extends State<MyPage> {
                 },
               ),
               label: "Setting"),
-          const BottomNavigationBarItem(
-              icon: Icon(Icons.person), label: "Profilo")
+          BottomNavigationBarItem(
+            icon: IconButton(
+              icon: const Icon(Icons.person),
+              onPressed: () {
+                nextPage(Profilo(
+                  nextPage: nextPage,
+                  previewPage: previewPage,
+                ));
+              },
+            ),
+            label: "Profilo",
+          )
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,

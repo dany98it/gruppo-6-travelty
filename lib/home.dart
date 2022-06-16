@@ -1,16 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:travelty/aggiungi_luogo.dart';
 
 import 'custom_flutter_map.dart';
 
 class Home extends StatelessWidget {
-  const Home({Key? key}) : super(key: key);
+  final Function nextPage;
+  final Function previewPage;
+  const Home({Key? key, required this.nextPage, required this.previewPage})
+      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       body: Stack(
         children: [
-          const CustomFlutterMap(),
+          CustomFlutterMap(
+            nextPage: nextPage,
+            previewPage: previewPage,
+          ),
           Positioned(
             top: 50,
             right: 15,
@@ -58,10 +65,17 @@ class Home extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () {
+          nextPage(
+            AggiungiLuogo(
+              nextPage: nextPage,
+              previewPage: previewPage,
+            ),
+          );
+        },
         shape: const CircleBorder(),
         backgroundColor: const Color(0XFF4C8F38),
-        child: const Icon(Icons.add),
+        child: const Icon(Icons.add_location_alt),
       ),
     );
   }

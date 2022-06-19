@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map/plugin_api.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:travelty/info_luogo.dart';
 
-class CustomFlutterMap extends StatelessWidget {
+class CustomFlutterMap extends StatefulWidget {
   final Function nextPage;
   final Function previewPage;
 
@@ -14,6 +15,11 @@ class CustomFlutterMap extends StatelessWidget {
   }) : super(key: key);
 
   @override
+  State<CustomFlutterMap> createState() => _CustomFlutterMapState();
+}
+
+class _CustomFlutterMapState extends State<CustomFlutterMap> {
+  @override
   Widget build(BuildContext context) {
     return FlutterMap(
       options: MapOptions(
@@ -21,6 +27,10 @@ class CustomFlutterMap extends StatelessWidget {
         zoom: 13.0,
       ),
       layers: [
+        TileLayerOptions(
+          urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
+          subdomains: ['a', 'b', 'c'],
+        ),
         MarkerLayerOptions(
           markers: [
             Marker(
@@ -33,10 +43,10 @@ class CustomFlutterMap extends StatelessWidget {
                   color: Color.fromARGB(255, 0, 0, 0),
                 ),
                 onPressed: () {
-                  nextPage(
+                  widget.nextPage(
                     InfoLuogo(
-                      nextPage: nextPage,
-                      previewPage: previewPage,
+                      nextPage: widget.nextPage,
+                      previewPage: widget.previewPage,
                       nomeLuogo: "Colosseo",
                     ),
                   );
@@ -44,14 +54,6 @@ class CustomFlutterMap extends StatelessWidget {
               ),
             ),
           ],
-        ),
-      ],
-      children: <Widget>[
-        TileLayerWidget(
-          options: TileLayerOptions(
-            urlTemplate: "https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png",
-            subdomains: ['a', 'b', 'c'],
-          ),
         ),
       ],
     );

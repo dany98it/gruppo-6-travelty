@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
-import 'package:travelty/card_picture.dart';
 
-class AggiungiLuogo extends StatelessWidget {
+class AggiungiContatti extends StatelessWidget {
   final Function nextPage;
   final Function previewPage;
-  final String luogo = "";
-  final ImagePicker _picker = ImagePicker();
-  AggiungiLuogo({Key? key, required this.nextPage, required this.previewPage})
+  final String nomeLuogo;
+  const AggiungiContatti(
+      {Key? key,
+      required this.nextPage,
+      required this.previewPage,
+      required this.nomeLuogo})
       : super(key: key);
   @override
   Widget build(BuildContext context) {
@@ -24,7 +25,7 @@ class AggiungiLuogo extends StatelessWidget {
         ),
         backgroundColor: const Color(0XFF5BA942),
         title: const Text(
-          "Aggiungi luogo",
+          "Aggiungi contatti",
           style: TextStyle(
             color: Colors.white,
             fontWeight: FontWeight.bold,
@@ -47,14 +48,6 @@ class AggiungiLuogo extends StatelessWidget {
         child: Flex(
           direction: Axis.vertical,
           children: [
-            const Center(
-              child: Text(
-                "Indirizzo",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
-                ),
-              ),
-            ),
             Container(
               margin: const EdgeInsets.all(8.0),
               child: Material(
@@ -64,8 +57,8 @@ class AggiungiLuogo extends StatelessWidget {
                 child: TextFormField(
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.newline,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
                       borderRadius: BorderRadius.all(
                         Radius.circular(15),
                       ),
@@ -76,19 +69,7 @@ class AggiungiLuogo extends StatelessWidget {
                     ),
                     fillColor: Colors.white,
                     filled: true,
-                    enabled: false,
-                    labelText: "Seleziona sulla mappa",
-                    suffixIcon: IconButton(
-                      onPressed: () {},
-                      icon: const CircleAvatar(
-                        backgroundColor: Color(0XFF1E3916),
-                        child: Icon(
-                          Icons.add_location_alt,
-                          color: Colors.white,
-                          size: 15,
-                        ),
-                      ),
-                    ),
+                    labelText: "Tipo",
                   ),
                 ),
               ),
@@ -114,23 +95,37 @@ class AggiungiLuogo extends StatelessWidget {
                     ),
                     fillColor: Colors.white,
                     filled: true,
-                    labelText: "Nome",
+                    labelText: "Contatto",
                   ),
                 ),
               ),
             ),
-            const Center(
-              child: Text(
-                "Immagine di copertina",
-                style: TextStyle(
-                  fontWeight: FontWeight.bold,
+            Container(
+              margin: const EdgeInsets.all(8.0),
+              child: Material(
+                elevation: 13,
+                shadowColor: Colors.grey,
+                borderRadius: BorderRadius.circular(15),
+                child: TextFormField(
+                  textInputAction: TextInputAction.newline,
+                  decoration: const InputDecoration(
+                    border: OutlineInputBorder(
+                      borderRadius: BorderRadius.all(
+                        Radius.circular(15),
+                      ),
+                      borderSide: BorderSide(
+                        width: 0,
+                        style: BorderStyle.none,
+                      ),
+                    ),
+                    fillColor: Colors.white,
+                    filled: true,
+                    labelText: "Ulteriori informazioni",
+                    alignLabelWithHint: true,
+                  ),
+                  maxLines: 5,
                 ),
               ),
-            ),
-            CardPicture(
-              onTap: () {
-                _picker.pickImage(source: ImageSource.gallery);
-              },
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),

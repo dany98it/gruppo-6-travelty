@@ -116,6 +116,7 @@ class _MyPageState extends State<MyPage> {
         ],
       ),
       floatingActionButtonLocation: FloatingActionButtonLocation.centerDocked,
+      resizeToAvoidBottomInset: false,
     );
   }
 }

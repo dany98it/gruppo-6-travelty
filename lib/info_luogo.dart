@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_rating_bar/flutter_rating_bar.dart';
+import 'package:travelty/accessibilita.dart';
+import 'package:travelty/contatti.dart';
+import 'package:travelty/galleria.dart';
+import 'package:travelty/orari.dart';
+import 'package:travelty/traporti.dart';
 
 class InfoLuogo extends StatelessWidget {
   final Function nextPage;
@@ -47,14 +52,25 @@ class InfoLuogo extends StatelessWidget {
           ),
         ],
       ),
-      body: const TopElements(),
+      body: TopElements(
+        nextPage: nextPage,
+        previewPage: previewPage,
+        nomeLuogo: nomeLuogo,
+      ),
     );
   }
 }
 
 class TopElements extends StatelessWidget {
+  final Function nextPage;
+  final Function previewPage;
+  final String nomeLuogo;
+
   const TopElements({
     Key? key,
+    required this.nextPage,
+    required this.previewPage,
+    required this.nomeLuogo,
   }) : super(key: key);
 
   @override
@@ -64,8 +80,19 @@ class TopElements extends StatelessWidget {
         Stack(
           alignment: Alignment.topLeft,
           children: [
-            Image.network(
-              "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/1920px-Colosseo_2020.jpg",
+            InkWell(
+              onTap: () {
+                nextPage(
+                  GalleriaPage(
+                    nextPage: nextPage,
+                    previewPage: previewPage,
+                    nomeLuogo: nomeLuogo,
+                  ),
+                );
+              },
+              child: Image.network(
+                "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/1920px-Colosseo_2020.jpg",
+              ),
             ),
             const Positioned(
               top: 5,
@@ -76,16 +103,27 @@ class TopElements extends StatelessWidget {
                 size: 40,
               ),
             ),
-            const Positioned(
+            Positioned(
               top: 5,
               right: 5,
               child: CircleAvatar(
-                backgroundColor: Color(0X80FFFFFF),
+                backgroundColor: const Color(0X80FFFFFF),
                 radius: 23,
-                child: Icon(
-                  Icons.accessible,
-                  color: Color(0XFFFF0000),
-                  size: 40,
+                child: IconButton(
+                  onPressed: () {
+                    nextPage(
+                      AccessibilitaPage(
+                        nextPage: nextPage,
+                        previewPage: previewPage,
+                        nomeLuogo: nomeLuogo,
+                      ),
+                    );
+                  },
+                  iconSize: 30,
+                  icon: const Icon(
+                    Icons.accessible,
+                    color: Color(0XFFFF0000),
+                  ),
                 ),
               ),
             ),
@@ -110,7 +148,7 @@ class TopElements extends StatelessWidget {
           title: Center(
             child: RatingBarIndicator(
               rating: 3,
-              itemSize: 50,
+              itemSize: 40,
               itemBuilder: (context, index) => const Icon(
                 Icons.star,
                 color: Color(0XFFF6E018),
@@ -118,22 +156,55 @@ class TopElements extends StatelessWidget {
               unratedColor: const Color(0XFFC4C4C4),
             ),
           ),
-          trailing: const Icon(
-            Icons.directions_bus,
-            size: 50,
-            color: Color(0XFF4C8F38),
+          trailing: IconButton(
+            iconSize: 40,
+            icon: const Icon(
+              Icons.directions_bus,
+              color: Color(0XFF4C8F38),
+            ),
+            onPressed: () {
+              nextPage(
+                TrasportiPage(
+                  nextPage: nextPage,
+                  previewPage: previewPage,
+                  nomeLuogo: nomeLuogo,
+                ),
+              );
+            },
           ),
-          leading: const Icon(
-            Icons.phone,
-            size: 50,
-            color: Color(0XFF4C8F38),
+          leading: IconButton(
+            iconSize: 40,
+            icon: const Icon(
+              Icons.phone,
+              color: Color(0XFF4C8F38),
+            ),
+            onPressed: () {
+              nextPage(
+                ContattiPage(
+                  nextPage: nextPage,
+                  previewPage: previewPage,
+                  nomeLuogo: nomeLuogo,
+                ),
+              );
+            },
           ),
         ),
         ListTile(
-          leading: const Icon(
-            Icons.calendar_month,
-            size: 50,
-            color: Color(0XFF4C8F38),
+          leading: IconButton(
+            iconSize: 40,
+            icon: const Icon(
+              Icons.calendar_month,
+              color: Color(0XFF4C8F38),
+            ),
+            onPressed: () {
+              nextPage(
+                OrariPage(
+                  nextPage: nextPage,
+                  previewPage: previewPage,
+                  nomeLuogo: nomeLuogo,
+                ),
+              );
+            },
           ),
           title: Flex(
             direction: Axis.horizontal,

@@ -1,8 +1,8 @@
 import 'package:travelty/info.dart';
 
-class Recensioni extends Info {
+class Recensione extends Info {
   int pericolo;
   int star;
-  Recensioni(
+  Recensione(
       super.utente, super.voto, super.informazioni, this.pericolo, this.star);
 }

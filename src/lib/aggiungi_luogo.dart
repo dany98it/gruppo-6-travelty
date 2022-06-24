@@ -1,21 +1,32 @@
+import 'dart:typed_data';
+
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:latlong2/latlong.dart';
 import 'package:travelty/card_picture.dart';
+import 'package:travelty/home.dart';
+import 'package:travelty/luogo.dart';
+import 'package:travelty/main.dart';
+import 'package:travelty/select_map.dart';
 
 class AggiungiLuogo extends StatelessWidget {
-  final Function nextPage;
-  final Function previewPage;
-  final String luogo = "";
+  final LatLng? luogo;
+  String nome = "";
+  List<Uint8List> images = [];
   final ImagePicker _picker = ImagePicker();
-  AggiungiLuogo({Key? key, required this.nextPage, required this.previewPage})
-      : super(key: key);
+  final int? icon;
+  AggiungiLuogo({
+    Key? key,
+    this.luogo,
+    this.icon,
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            previewPage();
+            Navigator.pop(context);
           },
           icon: const Icon(
             Icons.arrow_back,
@@ -23,11 +34,13 @@ class AggiungiLuogo extends StatelessWidget {
           ),
         ),
         backgroundColor: const Color(0XFF5BA942),
-        title: const Text(
-          "Aggiungi luogo",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        title: const Center(
+          child: Text(
+            "Aggiungi luogo",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         actions: const [
@@ -59,28 +72,38 @@ class AggiungiLuogo extends StatelessWidget {
               margin: const EdgeInsets.all(8.0),
               child: Material(
                 elevation: 13,
-                shadowColor: Colors.grey,
                 borderRadius: BorderRadius.circular(15),
-                child: TextFormField(
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.newline,
-                  decoration: InputDecoration(
-                    border: const OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(15),
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                      primary: Colors.white,
+                      surfaceTintColor: Colors.white,
+                      minimumSize: const Size(double.infinity, 70)),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MyPage(
+                          child: SelectMap(
+                            nomeLuogo: luogo != null ? luogo.toString() : "",
+                          ),
+                        ),
                       ),
-                      borderSide: BorderSide(
-                        width: 0,
-                        style: BorderStyle.none,
+                    );
+                  },
+                  child: Row(
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        (luogo == null)
+                            ? "Seleziona sulla mappa"
+                            : luogo!.toString(),
+                        style: const TextStyle(
+                          fontSize: 12,
+                        ),
                       ),
-                    ),
-                    fillColor: Colors.white,
-                    filled: true,
-                    enabled: false,
-                    labelText: "Seleziona sulla mappa",
-                    suffixIcon: IconButton(
-                      onPressed: () {},
-                      icon: const CircleAvatar(
+                      const CircleAvatar(
+                        radius: 10,
                         backgroundColor: Color(0XFF1E3916),
                         child: Icon(
                           Icons.add_location_alt,
@@ -88,7 +111,7 @@ class AggiungiLuogo extends StatelessWidget {
                           size: 15,
                         ),
                       ),
-                    ),
+                    ],
                   ),
                 ),
               ),
@@ -100,6 +123,9 @@ class AggiungiLuogo extends StatelessWidget {
                 shadowColor: Colors.grey,
                 borderRadius: BorderRadius.circular(15),
                 child: TextFormField(
+                  onChanged: (value) {
+                    nome = value;
+                  },
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.newline,
                   decoration: const InputDecoration(
@@ -129,7 +155,16 @@ class AggiungiLuogo extends StatelessWidget {
             ),
             CardPicture(
               onTap: () {
-                _picker.pickImage(source: ImageSource.gallery);
+                _picker
+                    .pickImage(source: ImageSource.gallery)
+                    .asStream()
+                    .forEach((element) {
+                  if (element!.mimeType!.contains("image/jpeg")) {
+                    element.readAsBytes().asStream().forEach((element1) {
+                      images.add(element1);
+                    });
+                  }
+                });
               },
             ),
             Padding(
@@ -138,7 +173,33 @@ class AggiungiLuogo extends StatelessWidget {
                 style: TextButton.styleFrom(
                   backgroundColor: const Color(0XFF4C8F38),
                 ),
-                onPressed: () {},
+                onPressed: () {
+                  luoghi.add(
+                    Luogo.withImage(
+                        icon!,
+                        luogo!.latitude,
+                        luogo!.longitude,
+                        nome,
+                        luogo.toString(),
+                        0,
+                        0,
+                        [],
+                        [],
+                        [],
+                        [],
+                        0,
+                        [],
+                        images),
+                  );
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MyPage(
+                        child: Home(),
+                      ),
+                    ),
+                  );
+                },
                 child: const Text(
                   "Conferma",
                   style: TextStyle(

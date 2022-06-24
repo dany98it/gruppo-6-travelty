@@ -15,15 +15,19 @@ abstract class Info {
   );
 
   upVote(Utente u) {
-    for (var user in votanti) {
-      if (user.utente == u) {
-        if (user.voto == -1) {
+    for (Voto v in votanti) {
+      if (v.utente == u) {
+        if (v.voto == -1) {
           voto = voto + 2;
-          votanti.add(Voto(u, -1));
+          v.voto = 1;
           return;
-        } else if (user.voto == 1) {
+        } else if (v.voto == 1) {
           voto = voto - 1;
-          votanti.add(Voto(u, 0));
+          v.voto = 0;
+          return;
+        } else {
+          voto = voto + 1;
+          v.voto = 1;
           return;
         }
       }
@@ -33,20 +37,33 @@ abstract class Info {
   }
 
   downVoto(Utente u) {
-    for (var user in votanti) {
-      if (user.utente == u) {
-        if (user.voto == 1) {
+    for (Voto v in votanti) {
+      if (v.utente == u) {
+        if (v.voto == 1) {
           voto = voto - 2;
-          votanti.add(Voto(u, 1));
+          v.voto = -1;
           return;
-        } else if (user.voto == -1) {
+        } else if (v.voto == -1) {
           voto = voto + 1;
-          votanti.add(Voto(u, 0));
+          v.voto = 0;
+          return;
+        } else {
+          voto = voto - 1;
+          v.voto = -1;
           return;
         }
       }
     }
     votanti.add(Voto(u, -1));
     voto = voto - 1;
+  }
+
+  int getVoto(Utente u) {
+    for (Voto v in votanti) {
+      if (v.utente == u) {
+        return v.voto;
+      }
+    }
+    return 0;
   }
 }

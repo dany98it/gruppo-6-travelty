@@ -1,22 +1,27 @@
 import 'package:flutter/material.dart';
+import 'package:travelty/aggiungi_fermata.dart';
+import 'package:travelty/luogo.dart';
+import 'package:travelty/main.dart';
+import 'package:travelty/trasporto.dart';
+import 'package:travelty/utente.dart';
 
 class AggiungiTrasporti extends StatelessWidget {
-  final Function nextPage;
-  final Function previewPage;
-  final String nomeLuogo;
-  const AggiungiTrasporti(
-      {Key? key,
-      required this.nextPage,
-      required this.previewPage,
-      required this.nomeLuogo})
-      : super(key: key);
+  late String tipo;
+  late String linea;
+  late String azienda;
+  late String commendi;
+  final int indexLuogo;
+  AggiungiTrasporti({
+    Key? key,
+    required this.indexLuogo,
+  }) : super(key: key);
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            previewPage();
+            Navigator.pop(context);
           },
           icon: const Icon(
             Icons.arrow_back,
@@ -24,11 +29,27 @@ class AggiungiTrasporti extends StatelessWidget {
           ),
         ),
         backgroundColor: const Color(0XFF5BA942),
-        title: const Text(
-          "Aggiungi trasporti",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        title: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                luoghi[indexLuogo].nome,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                ),
+              ),
+              const Text(
+                "Aggiungi trasporti",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ),
         actions: const [
@@ -55,6 +76,9 @@ class AggiungiTrasporti extends StatelessWidget {
                 shadowColor: Colors.grey,
                 borderRadius: BorderRadius.circular(15),
                 child: TextFormField(
+                  onChanged: ((value) {
+                    tipo = value;
+                  }),
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.newline,
                   decoration: const InputDecoration(
@@ -81,6 +105,9 @@ class AggiungiTrasporti extends StatelessWidget {
                 shadowColor: Colors.grey,
                 borderRadius: BorderRadius.circular(15),
                 child: TextFormField(
+                  onChanged: ((value) {
+                    linea = value;
+                  }),
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.newline,
                   decoration: const InputDecoration(
@@ -107,6 +134,9 @@ class AggiungiTrasporti extends StatelessWidget {
                 shadowColor: Colors.grey,
                 borderRadius: BorderRadius.circular(15),
                 child: TextFormField(
+                  onChanged: ((value) {
+                    azienda = value;
+                  }),
                   keyboardType: TextInputType.text,
                   textInputAction: TextInputAction.newline,
                   decoration: const InputDecoration(
@@ -133,6 +163,9 @@ class AggiungiTrasporti extends StatelessWidget {
                 shadowColor: Colors.grey,
                 borderRadius: BorderRadius.circular(15),
                 child: TextFormField(
+                  onChanged: ((value) {
+                    commendi = value;
+                  }),
                   textInputAction: TextInputAction.newline,
                   decoration: const InputDecoration(
                     border: OutlineInputBorder(
@@ -155,16 +188,48 @@ class AggiungiTrasporti extends StatelessWidget {
             ),
             Padding(
               padding: const EdgeInsets.all(8.0),
-              child: TextButton(
-                style: TextButton.styleFrom(
-                  backgroundColor: const Color(0XFF4C8F38),
-                ),
-                onPressed: () {},
-                child: const Text(
-                  "Aggiungi fermata",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 24,
+              child: SizedBox(
+                height: 50,
+                width: double.infinity,
+                child: ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    primary: const Color(0XFF4C8F38),
+                  ),
+                  onPressed: () {
+                    luoghi[indexLuogo].trasporti.add(
+                          Trasporto(
+                            utenteLoggato,
+                            0,
+                            commendi,
+                            [],
+                            [],
+                            tipo,
+                            azienda,
+                            linea,
+                          ),
+                        );
+                    luoghi[indexLuogo].trasporti.sort(
+                          (a, b) => b.voto.compareTo(a.voto),
+                        );
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MyPage(
+                          child: AggiungiFermata(
+                            indexLuogo: indexLuogo,
+                            indexTrasporto:
+                                luoghi[indexLuogo].trasporti.length - 1,
+                          ),
+                        ),
+                      ),
+                    );
+                  },
+                  child: const Text(
+                    "Prosegui",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                    ),
                   ),
                 ),
               ),

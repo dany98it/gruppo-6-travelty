@@ -1,18 +1,21 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:travelty/luogo.dart';
 
-class GalleriaPage extends StatelessWidget {
-  final Function nextPage;
-  final Function previewPage;
-  final String nomeLuogo;
+class GalleriaPage extends StatefulWidget {
+  final int indexLuogo;
+
+  const GalleriaPage({
+    Key? key,
+    required this.indexLuogo,
+  }) : super(key: key);
+
+  @override
+  State<GalleriaPage> createState() => _GalleriaPageState();
+}
+
+class _GalleriaPageState extends State<GalleriaPage> {
   final ImagePicker _picker = ImagePicker();
-
-  GalleriaPage(
-      {Key? key,
-      required this.nextPage,
-      required this.previewPage,
-      required this.nomeLuogo})
-      : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -20,7 +23,7 @@ class GalleriaPage extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            previewPage();
+            Navigator.pop(context);
           },
           icon: const Icon(
             Icons.arrow_back,
@@ -28,11 +31,27 @@ class GalleriaPage extends StatelessWidget {
           ),
         ),
         backgroundColor: const Color(0XFF5BA942),
-        title: Text(
-          nomeLuogo,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        title: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Text(
+                luoghi[widget.indexLuogo].nome,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 24,
+                ),
+              ),
+              const Text(
+                "Galleria",
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
+              ),
+            ],
           ),
         ),
         actions: const [
@@ -49,20 +68,35 @@ class GalleriaPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "btn2",
         onPressed: () {
-          _picker.pickImage(source: ImageSource.gallery);
+          _picker
+              .pickImage(source: ImageSource.gallery)
+              .asStream()
+              .forEach((element) {
+            if (element!.mimeType!.contains("image/jpeg")) {
+              element.readAsBytes().asStream().forEach((element1) {
+                setState(() {
+                  luoghi[widget.indexLuogo].images.add(element1);
+                });
+              });
+            }
+          });
         },
         shape: const CircleBorder(),
         backgroundColor: const Color(0XFF4C8F38),
-        child: const Icon(Icons.add_location_alt),
+        child: const Icon(Icons.add_a_photo),
       ),
-      body: const Galleria(),
+      body: Galleria(
+        indexLuogo: widget.indexLuogo,
+      ),
     );
   }
 }
 
 class Galleria extends StatefulWidget {
-  const Galleria({Key? key}) : super(key: key);
+  final int indexLuogo;
+  const Galleria({Key? key, required this.indexLuogo}) : super(key: key);
 
   @override
   State<Galleria> createState() => _GalleriaState();
@@ -77,9 +111,9 @@ class _GalleriaState extends State<Galleria> {
       mainAxisSpacing: 4,
       crossAxisSpacing: 4,
       children: List.generate(
-        25,
-        (index) => Image.network(
-          "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/1920px-Colosseo_2020.jpg",
+        luoghi[widget.indexLuogo].images.length,
+        (index) => Image.memory(
+          luoghi[widget.indexLuogo].images[index],
         ),
       ),
     );

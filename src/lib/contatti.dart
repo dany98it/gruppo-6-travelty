@@ -1,16 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:travelty/aggiungi_contatti.dart';
+import 'package:travelty/luogo.dart';
+import 'package:travelty/main.dart';
+import 'package:travelty/utente.dart';
 
 class ContattiPage extends StatelessWidget {
-  final Function nextPage;
-  final Function previewPage;
-  final String nomeLuogo;
-  const ContattiPage(
-      {Key? key,
-      required this.nextPage,
-      required this.previewPage,
-      required this.nomeLuogo})
-      : super(key: key);
+  final int indexLuogo;
+  const ContattiPage({Key? key, required this.indexLuogo}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +14,7 @@ class ContattiPage extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            previewPage();
+            Navigator.pop(context);
           },
           icon: const Icon(
             Icons.arrow_back,
@@ -31,7 +27,7 @@ class ContattiPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                nomeLuogo,
+                luoghi[indexLuogo].nome,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -63,12 +59,16 @@ class ContattiPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "btn1",
         onPressed: () {
-          nextPage(
-            AggiungiContatti(
-              nextPage: nextPage,
-              previewPage: previewPage,
-              nomeLuogo: nomeLuogo,
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MyPage(
+                child: AggiungiContatti(
+                  indexLuogo: indexLuogo,
+                ),
+              ),
             ),
           );
         },
@@ -76,13 +76,16 @@ class ContattiPage extends StatelessWidget {
         backgroundColor: const Color(0XFF4C8F38),
         child: const Icon(Icons.add_call),
       ),
-      body: const Contatti(),
+      body: Contatti(
+        indexLuogo: indexLuogo,
+      ),
     );
   }
 }
 
 class Contatti extends StatefulWidget {
-  const Contatti({Key? key}) : super(key: key);
+  final int indexLuogo;
+  const Contatti({Key? key, required this.indexLuogo}) : super(key: key);
 
   @override
   State<Contatti> createState() => _ContattiState();
@@ -93,37 +96,42 @@ class _ContattiState extends State<Contatti> {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        for (int i = 0; i < 20; i++)
-          ContattiItem(
-            key: Key("Account$i"),
+        ...List.generate(
+          luoghi[widget.indexLuogo].contatti.length,
+          (index) => ContattiItem(
+            key: Key("Contatti${widget.indexLuogo}$index"),
+            indexLuogo: widget.indexLuogo,
+            indexContatti: index,
+            onVote: () {
+              setState(() {
+                luoghi[widget.indexLuogo].contatti.sort(
+                      (a, b) => b.voto.compareTo(a.voto),
+                    );
+              });
+            },
           ),
+        )
       ],
     );
   }
 }
 
 class ContattiItem extends StatefulWidget {
-  const ContattiItem({Key? key}) : super(key: key);
+  final int indexLuogo;
+  final int indexContatti;
+  final Function onVote;
+  const ContattiItem(
+      {Key? key,
+      required this.indexLuogo,
+      required this.indexContatti,
+      required this.onVote})
+      : super(key: key);
 
   @override
   State<ContattiItem> createState() => _ContattiItemState();
 }
 
 class _ContattiItemState extends State<ContattiItem> {
-  int vote = 0;
-
-  upVote() {
-    setState(() {
-      vote = vote + 1;
-    });
-  }
-
-  downVote() {
-    setState(() {
-      vote = vote - 1;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Flex(
@@ -134,16 +142,43 @@ class _ContattiItemState extends State<ContattiItem> {
           children: [
             IconButton(
               onPressed: () {
-                upVote();
+                luoghi[widget.indexLuogo]
+                    .contatti[widget.indexContatti]
+                    .upVote(utenteLoggato);
+                widget.onVote();
               },
-              icon: const Icon(Icons.arrow_drop_up),
+              icon: Icon(
+                Icons.arrow_drop_up,
+                color: luoghi[widget.indexLuogo]
+                            .contatti[widget.indexContatti]
+                            .getVoto(utenteLoggato) ==
+                        1
+                    ? Colors.green
+                    : Colors.black,
+              ),
             ),
-            Text(vote.toString()),
+            Text(
+              luoghi[widget.indexLuogo]
+                  .contatti[widget.indexContatti]
+                  .voto
+                  .toString(),
+            ),
             IconButton(
               onPressed: () {
-                downVote();
+                luoghi[widget.indexLuogo]
+                    .contatti[widget.indexContatti]
+                    .upVote(utenteLoggato);
+                widget.onVote();
               },
-              icon: const Icon(Icons.arrow_drop_down),
+              icon: Icon(
+                Icons.arrow_drop_down,
+                color: luoghi[widget.indexLuogo]
+                            .contatti[widget.indexContatti]
+                            .getVoto(utenteLoggato) ==
+                        -1
+                    ? Colors.red
+                    : Colors.black,
+              ),
             ),
           ],
         ),
@@ -157,17 +192,32 @@ class _ContattiItemState extends State<ContattiItem> {
                 children: [
                   Flex(
                     direction: Axis.horizontal,
-                    children: const [
-                      CircleAvatar(
-                        radius: 12,
-                        child: Icon(
-                          Icons.person,
-                          size: 15,
-                        ),
+                    children: [
+                      Icon(
+                        Icons.workspace_premium,
+                        color: luoghi[widget.indexLuogo]
+                                    .contatti[widget.indexContatti]
+                                    .utente
+                                    .rank ==
+                                1
+                            ? const Color(0XFFD27C2C)
+                            : luoghi[widget.indexLuogo]
+                                        .contatti[widget.indexContatti]
+                                        .utente
+                                        .rank ==
+                                    2
+                                ? const Color(0XFFC4C4C4)
+                                : luoghi[widget.indexLuogo]
+                                            .contatti[widget.indexContatti]
+                                            .utente
+                                            .rank ==
+                                        3
+                                    ? const Color(0XFFFFC700)
+                                    : Colors.black,
                       ),
                       Text(
-                        "Utente x",
-                        style: TextStyle(
+                        "${luoghi[widget.indexLuogo].contatti[widget.indexContatti].utente.nome} ${luoghi[widget.indexLuogo].contatti[widget.indexContatti].utente.cognome}",
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -175,8 +225,11 @@ class _ContattiItemState extends State<ContattiItem> {
                   ),
                 ],
               ),
-              const Text(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+              SizedBox(
+                width: double.infinity,
+                child: Text(
+                  "${luoghi[widget.indexLuogo].contatti[widget.indexContatti].tipo}: ${luoghi[widget.indexLuogo].contatti[widget.indexContatti].contatto}. \n${luoghi[widget.indexLuogo].contatti[widget.indexContatti].informazioni}",
+                ),
               ),
             ],
           ),

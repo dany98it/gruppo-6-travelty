@@ -11,9 +11,10 @@ class Trasporto extends Info {
 }
 
 class Fermata {
+  int numero;
   double x;
   double y;
   List<Range> orari;
 
-  Fermata(this.x, this.y, orari);
+  Fermata(this.numero, this.x, this.y, this.orari);
 }

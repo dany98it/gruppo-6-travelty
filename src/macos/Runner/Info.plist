@@ -28,5 +28,9 @@
 	<string>MainMenu</string>
 	<key>NSPrincipalClass</key>
 	<string>NSApplication</string>
+    <key>NSLocationUsageDescription</key>
+    <string>This app needs access to location.</string>
+    <key>com.apple.security.personal-information.location</key>
+    <true/>
 </dict>
 </plist>

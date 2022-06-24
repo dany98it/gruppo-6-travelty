@@ -1,17 +1,27 @@
 import 'dart:collection';
 
 import 'package:flutter/material.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:travelty/profilo.dart';
 import 'package:travelty/setting.dart';
 
 import 'home.dart';
 
+Position? position;
 void main() {
-  runApp(const MyApp());
+  Geolocator.getCurrentPosition(
+          desiredAccuracy: LocationAccuracy.bestForNavigation)
+      .then(
+    (value) {
+      position = value;
+      runApp(const CustomContainer(child: Home()));
+    },
+  );
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class CustomContainer extends StatelessWidget {
+  final Widget child;
+  const CustomContainer({Key? key, required this.child}) : super(key: key);
 
   // This widget is the root of your application.
   @override
@@ -23,13 +33,16 @@ class MyApp extends StatelessWidget {
         useMaterial3: true,
         bottomAppBarColor: const Color.fromARGB(255, 91, 169, 66),
       ),
-      home: const MyPage(),
+      home: MyPage(
+        child: child,
+      ),
     );
   }
 }
 
 class MyPage extends StatefulWidget {
-  const MyPage({Key? key}) : super(key: key);
+  final Widget child;
+  const MyPage({Key? key, required this.child}) : super(key: key);
 
   @override
   State<MyPage> createState() => _MyPageState();
@@ -40,52 +53,35 @@ class _MyPageState extends State<MyPage> {
   var navigation = ListQueue<Widget>();
 
   @override
-  void initState() {
-    currentPage = Home(
-      nextPage: nextPage,
-      previewPage: previewPage,
-    );
-    super.initState();
-  }
-
-  void nextPage(Widget page) {
-    setState(() {
-      if (currentPage.runtimeType != page.runtimeType) {
-        navigation.addLast(currentPage);
-        currentPage = page;
-      }
-    });
-  }
-
-  void previewPage() {
-    setState(() {
-      currentPage = navigation.removeLast();
-    });
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: currentPage,
-      floatingActionButton: FloatingActionButton.large(
-        onPressed: () {
-          nextPage(
-            Home(
-              nextPage: nextPage,
-              previewPage: previewPage,
-            ),
-          );
-        },
-        tooltip: 'home',
-        shape: const CircleBorder(),
-        materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
-        backgroundColor: const Color(0XFF3D722D),
-        child: const Icon(
-          Icons.map,
-          size: 48,
+      body: widget.child,
+      floatingActionButton: Padding(
+        padding: const EdgeInsets.only(top: 80.0),
+        child: FloatingActionButton.large(
+          heroTag: "btn5",
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const MyPage(
+                  child: Home(),
+                ),
+              ),
+            );
+          },
+          tooltip: 'home',
+          shape: const CircleBorder(),
+          materialTapTargetSize: MaterialTapTargetSize.shrinkWrap,
+          backgroundColor: const Color(0XFF3D722D),
+          child: const Icon(
+            Icons.map,
+            size: 48,
+          ),
         ),
       ),
       bottomNavigationBar: BottomNavigationBar(
+        key: Key("bnb"),
         backgroundColor: const Color(0XFF5BA942),
         unselectedItemColor: Colors.white,
         selectedItemColor: Colors.white,
@@ -93,22 +89,40 @@ class _MyPageState extends State<MyPage> {
           BottomNavigationBarItem(
               icon: IconButton(
                 icon: const Icon(Icons.settings),
+                iconSize: 40,
                 onPressed: () {
-                  nextPage(Setting(
-                    nextPage: nextPage,
-                    previewPage: previewPage,
-                  ));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) => const MyPage(
+                        child: Setting(),
+                      ),
+                    ),
+                  );
                 },
               ),
               label: "Setting"),
           BottomNavigationBarItem(
             icon: IconButton(
+              iconSize: 10,
+              icon: const Icon(Icons.person),
+              onPressed: () {},
+            ),
+            label: "",
+          ),
+          BottomNavigationBarItem(
+            icon: IconButton(
+              iconSize: 40,
               icon: const Icon(Icons.person),
               onPressed: () {
-                nextPage(Profilo(
-                  nextPage: nextPage,
-                  previewPage: previewPage,
-                ));
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const MyPage(
+                      child: Profilo(),
+                    ),
+                  ),
+                );
               },
             ),
             label: "Profilo",

@@ -3,19 +3,20 @@ import 'package:flutter_rating_bar/flutter_rating_bar.dart';
 import 'package:travelty/accessibilita.dart';
 import 'package:travelty/contatti.dart';
 import 'package:travelty/galleria.dart';
+import 'package:travelty/luogo.dart';
+import 'package:travelty/main.dart';
 import 'package:travelty/orari.dart';
-import 'package:travelty/traporti.dart';
+import 'package:travelty/orario.dart';
+import 'package:travelty/recensione.dart';
+import 'package:travelty/trasporti.dart';
+import 'package:travelty/utente.dart';
 
 class InfoLuogo extends StatelessWidget {
-  final Function nextPage;
-  final Function previewPage;
-  final String nomeLuogo;
+  final int indexLuogo;
 
   const InfoLuogo({
     Key? key,
-    required this.nextPage,
-    required this.previewPage,
-    required this.nomeLuogo,
+    required this.indexLuogo,
   }) : super(key: key);
 
   @override
@@ -24,7 +25,7 @@ class InfoLuogo extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            previewPage();
+            Navigator.pop(context);
           },
           icon: const Icon(
             Icons.arrow_back,
@@ -32,11 +33,13 @@ class InfoLuogo extends StatelessWidget {
           ),
         ),
         backgroundColor: const Color(0XFF5BA942),
-        title: Text(
-          nomeLuogo,
-          style: const TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        title: Center(
+          child: Text(
+            luoghi[indexLuogo].nome,
+            style: const TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         actions: const [
@@ -53,26 +56,25 @@ class InfoLuogo extends StatelessWidget {
         ],
       ),
       body: TopElements(
-        nextPage: nextPage,
-        previewPage: previewPage,
-        nomeLuogo: nomeLuogo,
+        indexLuogo: indexLuogo,
       ),
     );
   }
 }
 
-class TopElements extends StatelessWidget {
-  final Function nextPage;
-  final Function previewPage;
-  final String nomeLuogo;
+class TopElements extends StatefulWidget {
+  final int indexLuogo;
 
   const TopElements({
     Key? key,
-    required this.nextPage,
-    required this.previewPage,
-    required this.nomeLuogo,
+    required this.indexLuogo,
   }) : super(key: key);
 
+  @override
+  State<TopElements> createState() => _TopElementsState();
+}
+
+class _TopElementsState extends State<TopElements> {
   @override
   Widget build(BuildContext context) {
     return ListView(
@@ -82,24 +84,48 @@ class TopElements extends StatelessWidget {
           children: [
             InkWell(
               onTap: () {
-                nextPage(
-                  GalleriaPage(
-                    nextPage: nextPage,
-                    previewPage: previewPage,
-                    nomeLuogo: nomeLuogo,
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => MyPage(
+                      child: GalleriaPage(
+                        indexLuogo: widget.indexLuogo,
+                      ),
+                    ),
                   ),
                 );
               },
-              child: Image.network(
-                "https://upload.wikimedia.org/wikipedia/commons/thumb/d/de/Colosseo_2020.jpg/1920px-Colosseo_2020.jpg",
+              child: Center(
+                child: luoghi[widget.indexLuogo].images.isEmpty
+                    ? Image.network(
+                        "https://upload.wikimedia.org/wikipedia/commons/5/5f/Universit%C3%A0_Salerno.jpg",
+                        height: 327.8,
+                      )
+                    : Image.memory(
+                        luoghi[widget.indexLuogo].images.first,
+                        height: 327.8,
+                      ),
               ),
             ),
-            const Positioned(
+            Positioned(
               top: 5,
               left: 5,
               child: Icon(
                 Icons.report_problem,
-                color: Color(0XFFFFC700),
+                color: luoghi[widget.indexLuogo].recensioni.isNotEmpty
+                    ? luoghi[widget.indexLuogo].recensioni.first.pericolo == 1
+                        ? Colors.green
+                        : luoghi[widget.indexLuogo].recensioni.first.pericolo ==
+                                2
+                            ? Colors.orange
+                            : luoghi[widget.indexLuogo]
+                                        .recensioni
+                                        .first
+                                        .pericolo ==
+                                    3
+                                ? Colors.red
+                                : Colors.grey
+                    : Colors.grey,
                 size: 40,
               ),
             ),
@@ -111,18 +137,41 @@ class TopElements extends StatelessWidget {
                 radius: 23,
                 child: IconButton(
                   onPressed: () {
-                    nextPage(
-                      AccessibilitaPage(
-                        nextPage: nextPage,
-                        previewPage: previewPage,
-                        nomeLuogo: nomeLuogo,
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => MyPage(
+                          child: AccessibilitaPage(
+                            indexLuogo: widget.indexLuogo,
+                          ),
+                        ),
                       ),
                     );
                   },
                   iconSize: 30,
-                  icon: const Icon(
+                  icon: Icon(
                     Icons.accessible,
-                    color: Color(0XFFFF0000),
+                    color: luoghi[widget.indexLuogo].accessibilita.isNotEmpty
+                        ? luoghi[widget.indexLuogo]
+                                    .accessibilita
+                                    .first
+                                    .accessibilita ==
+                                1
+                            ? Colors.green
+                            : luoghi[widget.indexLuogo]
+                                        .accessibilita
+                                        .first
+                                        .accessibilita ==
+                                    2
+                                ? Colors.orange
+                                : luoghi[widget.indexLuogo]
+                                            .accessibilita
+                                            .first
+                                            .accessibilita ==
+                                        3
+                                    ? Colors.red
+                                    : Colors.grey
+                        : Colors.grey,
                   ),
                 ),
               ),
@@ -133,10 +182,10 @@ class TopElements extends StatelessWidget {
               left: 0,
               child: Container(
                 color: const Color(0XE65BA942),
-                child: const Text(
-                  "indirizzo",
+                child: Text(
+                  luoghi[widget.indexLuogo].indirizzo,
                   textAlign: TextAlign.center,
-                  style: TextStyle(
+                  style: const TextStyle(
                     color: Colors.white,
                   ),
                 ),
@@ -147,7 +196,7 @@ class TopElements extends StatelessWidget {
         ListTile(
           title: Center(
             child: RatingBarIndicator(
-              rating: 3,
+              rating: luoghi[widget.indexLuogo].mediaRecensioni,
               itemSize: 40,
               itemBuilder: (context, index) => const Icon(
                 Icons.star,
@@ -163,11 +212,14 @@ class TopElements extends StatelessWidget {
               color: Color(0XFF4C8F38),
             ),
             onPressed: () {
-              nextPage(
-                TrasportiPage(
-                  nextPage: nextPage,
-                  previewPage: previewPage,
-                  nomeLuogo: nomeLuogo,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyPage(
+                    child: TrasportiPage(
+                      indexLuogo: widget.indexLuogo,
+                    ),
+                  ),
                 ),
               );
             },
@@ -179,11 +231,14 @@ class TopElements extends StatelessWidget {
               color: Color(0XFF4C8F38),
             ),
             onPressed: () {
-              nextPage(
-                ContattiPage(
-                  nextPage: nextPage,
-                  previewPage: previewPage,
-                  nomeLuogo: nomeLuogo,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyPage(
+                    child: ContattiPage(
+                      indexLuogo: widget.indexLuogo,
+                    ),
+                  ),
                 ),
               );
             },
@@ -197,131 +252,229 @@ class TopElements extends StatelessWidget {
               color: Color(0XFF4C8F38),
             ),
             onPressed: () {
-              nextPage(
-                OrariPage(
-                  nextPage: nextPage,
-                  previewPage: previewPage,
-                  nomeLuogo: nomeLuogo,
+              Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (context) => MyPage(
+                    child: OrariPage(
+                      indexLuogo: widget.indexLuogo,
+                    ),
+                  ),
                 ),
               );
             },
           ),
-          title: Flex(
-            direction: Axis.horizontal,
-            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-            children: [
-              IntrinsicWidth(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: const [
-                    Text("CHIUSO"),
-                    Text("Mercoledì"),
+          title: luoghi[widget.indexLuogo].orari.isNotEmpty
+              ? Flex(
+                  direction: Axis.horizontal,
+                  mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                  children: [
+                    IntrinsicWidth(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          luoghi[widget.indexLuogo].orari.first.isOpen()
+                              ? const Text("APERTO")
+                              : const Text("CHIUSO"),
+                          Text(getDayOfWeek()),
+                        ],
+                      ),
+                    ),
+                    IntrinsicWidth(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.stretch,
+                        children: [
+                          Text(luoghi[widget.indexLuogo]
+                              .orari
+                              .first
+                              .getOrarioOggi()
+                              .mattina
+                              .toString()),
+                          Text(luoghi[widget.indexLuogo]
+                              .orari
+                              .first
+                              .getOrarioOggi()
+                              .pomeriggio
+                              .toString()),
+                        ],
+                      ),
+                    )
                   ],
+                )
+              : const Center(
+                  child: Text("Nessun orario disponibile"),
                 ),
-              ),
-              IntrinsicWidth(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.stretch,
-                  children: const [
-                    Text("08:00-13:00"),
-                    Text("14:00-23:00"),
-                  ],
-                ),
-              )
-            ],
-          ),
         ),
-        const RecensioneForm(),
-        for (int i = 0; i < 20; i++)
-          RecensioneItem(
-            key: Key("Account$i"),
-          ),
+        RecensioneForm(
+          indexLuogo: widget.indexLuogo,
+          onRecensione: (valuta, pericolo) {
+            setState(() {
+              int x = 0;
+              luoghi[widget.indexLuogo].recensioni.forEach((element) {
+                x = x + element.star;
+              });
+              luoghi[widget.indexLuogo].mediaRecensioni =
+                  x / luoghi[widget.indexLuogo].recensioni.length;
+            });
+          },
+        ),
       ],
     );
   }
 }
 
-class RecensioneForm extends StatelessWidget {
+class RecensioneForm extends StatefulWidget {
+  final int indexLuogo;
+  final Function(int, int) onRecensione;
   const RecensioneForm({
     Key? key,
+    required this.indexLuogo,
+    required this.onRecensione,
   }) : super(key: key);
 
   @override
+  State<RecensioneForm> createState() => _RecensioneFormState();
+}
+
+class _RecensioneFormState extends State<RecensioneForm> {
+  late int pericolo = 1;
+
+  late String recensione;
+
+  late int valuta = 0;
+
+  @override
   Widget build(BuildContext context) {
-    return Form(
-      child: Container(
-        padding: const EdgeInsets.symmetric(vertical: 5),
-        color: const Color(0XFFF4F4F4),
-        child: Column(
-          children: [
-            ListTile(
-              leading: const CircleAvatar(
-                backgroundColor: Color(0XFFB9B9B9),
-                child: Icon(
-                  Icons.person,
-                  color: Colors.white,
-                ),
-              ),
-              title: Material(
-                elevation: 13,
-                shadowColor: Colors.grey,
-                borderRadius: BorderRadius.circular(15),
-                child: TextFormField(
-                  keyboardType: TextInputType.text,
-                  textInputAction: TextInputAction.newline,
-                  decoration: const InputDecoration(
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.all(
-                        Radius.circular(15),
-                      ),
-                      borderSide: BorderSide(
-                        width: 0,
-                        style: BorderStyle.none,
+    return Column(
+      children: [
+        Form(
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 5),
+            color: const Color(0XFFF4F4F4),
+            child: Column(
+              children: [
+                ListTile(
+                  leading: const CircleAvatar(
+                    backgroundColor: Color(0XFFB9B9B9),
+                    child: Icon(
+                      Icons.person,
+                    ),
+                  ),
+                  title: Material(
+                    elevation: 13,
+                    shadowColor: Colors.grey,
+                    borderRadius: BorderRadius.circular(15),
+                    child: TextFormField(
+                      onChanged: ((value) {
+                        recensione = value;
+                      }),
+                      keyboardType: TextInputType.text,
+                      textInputAction: TextInputAction.newline,
+                      decoration: InputDecoration(
+                        border: const OutlineInputBorder(
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(15),
+                          ),
+                          borderSide: BorderSide(
+                            width: 0,
+                            style: BorderStyle.none,
+                          ),
+                        ),
+                        fillColor: Colors.white,
+                        filled: true,
+                        suffixIcon: SelectPericoloLevel(
+                          onColor: (color) {
+                            if (color == Colors.green) {
+                              pericolo = 1;
+                            } else if (color == Colors.orange) {
+                              pericolo = 2;
+                            } else if (color == Colors.red) {
+                              pericolo = 3;
+                            } else {
+                              pericolo = -1;
+                            }
+                          },
+                        ),
                       ),
                     ),
-                    fillColor: Colors.white,
-                    filled: true,
-                    suffixIcon: SelectPericoloLevel(),
                   ),
                 ),
-              ),
-            ),
-            ListTile(
-              leading: const Text(
-                "Valuta:",
-                style: TextStyle(
-                  fontSize: 20,
-                ),
-              ),
-              title: Center(
-                child: RatingBar.builder(
-                  itemBuilder: (context, index) => const Icon(
-                    Icons.star,
-                    color: Color(0XFFF6E018),
-                    size: 40,
+                ListTile(
+                  leading: const Text(
+                    "Valuta:",
+                    style: TextStyle(
+                      fontSize: 20,
+                    ),
                   ),
-                  onRatingUpdate: (double value) {},
-                  unratedColor: const Color(0XFFC4C4C4),
+                  title: Center(
+                    child: RatingBar.builder(
+                      itemBuilder: (context, index) => const Icon(
+                        Icons.star,
+                        color: Color(0XFFF6E018),
+                        size: 40,
+                      ),
+                      onRatingUpdate: (double value) {
+                        valuta = value.toInt();
+                      },
+                      unratedColor: const Color(0XFFC4C4C4),
+                    ),
+                  ),
+                  trailing: IconButton(
+                    onPressed: () {
+                      if (valuta != 0) {
+                        setState(() {
+                          luoghi[widget.indexLuogo].recensioni.add(
+                                Recensione(
+                                  utenteLoggato,
+                                  0,
+                                  recensione,
+                                  [],
+                                  pericolo,
+                                  valuta,
+                                ),
+                              );
+                          luoghi[widget.indexLuogo].recensioni.sort(
+                                (a, b) => b.voto.compareTo(a.voto),
+                              );
+                        });
+                        widget.onRecensione(valuta, pericolo);
+                      }
+                    },
+                    icon: const Icon(
+                      Icons.send,
+                      size: 40,
+                      color: Color(0XFF4C8F38),
+                    ),
+                  ),
                 ),
-              ),
-              trailing: IconButton(
-                onPressed: () {},
-                icon: const Icon(
-                  Icons.send,
-                  size: 40,
-                  color: Color(0XFF4C8F38),
-                ),
-              ),
+              ],
             ),
-          ],
+          ),
         ),
-      ),
+        ...List.generate(
+          luoghi[widget.indexLuogo].recensioni.length,
+          (index) => RecensioneItem(
+            key: Key("Recensione${widget.indexLuogo}$index"),
+            indexLuogo: widget.indexLuogo,
+            indexRecensione: index,
+            onVote: () {
+              setState(() {
+                luoghi[widget.indexLuogo].recensioni.sort(
+                      (a, b) => b.voto.compareTo(a.voto),
+                    );
+              });
+            },
+          ),
+        )
+      ],
     );
   }
 }
 
 class SelectPericoloLevel extends StatefulWidget {
-  const SelectPericoloLevel({Key? key}) : super(key: key);
+  final Function onColor;
+  const SelectPericoloLevel({Key? key, required this.onColor})
+      : super(key: key);
 
   @override
   State<SelectPericoloLevel> createState() => _SelectPericoloLevelState();
@@ -334,6 +487,7 @@ class _SelectPericoloLevelState extends State<SelectPericoloLevel> {
     setState(() {
       selectColor = newColor;
     });
+    widget.onColor(selectColor);
   }
 
   @override
@@ -349,26 +503,32 @@ class _SelectPericoloLevelState extends State<SelectPericoloLevel> {
       itemBuilder: (context) => [
         const PopupMenuItem(
           value: Colors.red,
-          child: Icon(
-            Icons.report_problem,
-            color: Colors.red,
-            size: 40,
+          child: Center(
+            child: Icon(
+              Icons.report_problem,
+              color: Colors.red,
+              size: 40,
+            ),
           ),
         ),
         const PopupMenuItem(
           value: Colors.orange,
-          child: Icon(
-            Icons.report_problem,
-            color: Colors.orange,
-            size: 40,
+          child: Center(
+            child: Icon(
+              Icons.report_problem,
+              color: Colors.orange,
+              size: 40,
+            ),
           ),
         ),
         const PopupMenuItem(
           value: Colors.green,
-          child: Icon(
-            Icons.report_problem,
-            color: Colors.green,
-            size: 40,
+          child: Center(
+            child: Icon(
+              Icons.report_problem,
+              color: Colors.green,
+              size: 40,
+            ),
           ),
         )
       ],
@@ -377,27 +537,21 @@ class _SelectPericoloLevelState extends State<SelectPericoloLevel> {
 }
 
 class RecensioneItem extends StatefulWidget {
-  const RecensioneItem({Key? key}) : super(key: key);
+  final int indexLuogo;
+  final int indexRecensione;
+  final Function onVote;
+  const RecensioneItem({
+    Key? key,
+    required this.indexLuogo,
+    required this.indexRecensione,
+    required this.onVote,
+  }) : super(key: key);
 
   @override
   State<RecensioneItem> createState() => _RecensioneItemState();
 }
 
 class _RecensioneItemState extends State<RecensioneItem> {
-  int vote = 0;
-
-  upVote() {
-    setState(() {
-      vote = vote + 1;
-    });
-  }
-
-  downVote() {
-    setState(() {
-      vote = vote - 1;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Flex(
@@ -408,16 +562,41 @@ class _RecensioneItemState extends State<RecensioneItem> {
           children: [
             IconButton(
               onPressed: () {
-                upVote();
+                luoghi[widget.indexLuogo]
+                    .recensioni[widget.indexRecensione]
+                    .upVote(utenteLoggato);
+                widget.onVote();
               },
-              icon: const Icon(Icons.arrow_drop_up),
+              icon: Icon(
+                Icons.arrow_drop_up,
+                color: luoghi[widget.indexLuogo]
+                            .recensioni[widget.indexRecensione]
+                            .getVoto(utenteLoggato) ==
+                        1
+                    ? Colors.green
+                    : Colors.black,
+              ),
             ),
-            Text(vote.toString()),
+            Text(luoghi[widget.indexLuogo]
+                .recensioni[widget.indexRecensione]
+                .voto
+                .toString()),
             IconButton(
               onPressed: () {
-                downVote();
+                luoghi[widget.indexLuogo]
+                    .recensioni[widget.indexRecensione]
+                    .downVoto(utenteLoggato);
+                widget.onVote();
               },
-              icon: const Icon(Icons.arrow_drop_down),
+              icon: Icon(
+                Icons.arrow_drop_down,
+                color: luoghi[widget.indexLuogo]
+                            .recensioni[widget.indexRecensione]
+                            .getVoto(utenteLoggato) ==
+                        -1
+                    ? Colors.red
+                    : Colors.black,
+              ),
             ),
           ],
         ),
@@ -431,24 +610,42 @@ class _RecensioneItemState extends State<RecensioneItem> {
                 children: [
                   Flex(
                     direction: Axis.horizontal,
-                    children: const [
-                      CircleAvatar(
-                        radius: 12,
-                        child: Icon(
-                          Icons.person,
-                          size: 15,
-                        ),
+                    children: [
+                      Icon(
+                        Icons.workspace_premium,
+                        color: luoghi[widget.indexLuogo]
+                                    .recensioni[widget.indexRecensione]
+                                    .utente
+                                    .rank ==
+                                1
+                            ? const Color(0XFFD27C2C)
+                            : luoghi[widget.indexLuogo]
+                                        .recensioni[widget.indexRecensione]
+                                        .utente
+                                        .rank ==
+                                    2
+                                ? const Color(0XFFC4C4C4)
+                                : luoghi[widget.indexLuogo]
+                                            .recensioni[widget.indexRecensione]
+                                            .utente
+                                            .rank ==
+                                        3
+                                    ? const Color(0XFFFFC700)
+                                    : Colors.black,
                       ),
                       Text(
-                        "Utente x",
-                        style: TextStyle(
+                        "${luoghi[widget.indexLuogo].recensioni[widget.indexRecensione].utente.nome} ${luoghi[widget.indexLuogo].recensioni[widget.indexRecensione].utente.cognome}",
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
                     ],
                   ),
                   RatingBarIndicator(
-                    rating: 3,
+                    rating: luoghi[widget.indexLuogo]
+                            .recensioni[widget.indexRecensione]
+                            .star *
+                        1.0,
                     itemSize: 15,
                     itemBuilder: (context, index) => const Icon(
                       Icons.star,
@@ -458,15 +655,35 @@ class _RecensioneItemState extends State<RecensioneItem> {
                   ),
                 ],
               ),
-              const Text(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+              SizedBox(
+                width: double.infinity,
+                child: Text(
+                  luoghi[widget.indexLuogo]
+                      .recensioni[widget.indexRecensione]
+                      .informazioni,
+                ),
               ),
             ],
           ),
         ),
-        const Icon(
+        Icon(
           Icons.report_problem,
-          color: Colors.orange,
+          color: luoghi[widget.indexLuogo]
+                      .recensioni[widget.indexRecensione]
+                      .pericolo ==
+                  1
+              ? Colors.green
+              : luoghi[widget.indexLuogo]
+                          .recensioni[widget.indexRecensione]
+                          .pericolo ==
+                      2
+                  ? Colors.orange
+                  : luoghi[widget.indexLuogo]
+                              .recensioni[widget.indexRecensione]
+                              .pericolo ==
+                          3
+                      ? Colors.red
+                      : Colors.grey,
           size: 50,
         )
       ],

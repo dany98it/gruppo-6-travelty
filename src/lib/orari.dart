@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:travelty/aggiungi_orario.dart';
+import 'package:travelty/luogo.dart';
+import 'package:travelty/main.dart';
+import 'package:travelty/utente.dart';
+import 'package:travelty/visualizza_orario.dart';
 
 class OrariPage extends StatelessWidget {
-  final Function nextPage;
-  final Function previewPage;
-  final String nomeLuogo;
-  const OrariPage(
-      {Key? key,
-      required this.nextPage,
-      required this.previewPage,
-      required this.nomeLuogo})
-      : super(key: key);
+  final int indexLuogo;
+  const OrariPage({
+    Key? key,
+    required this.indexLuogo,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +18,7 @@ class OrariPage extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            previewPage();
+            Navigator.pop(context);
           },
           icon: const Icon(
             Icons.arrow_back,
@@ -31,7 +31,7 @@ class OrariPage extends StatelessWidget {
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
               Text(
-                nomeLuogo,
+                luoghi[indexLuogo].nome,
                 style: const TextStyle(
                   color: Colors.white,
                   fontWeight: FontWeight.bold,
@@ -63,12 +63,16 @@ class OrariPage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
+        heroTag: "btn4",
         onPressed: () {
-          nextPage(
-            AggiungiOrario(
-              nextPage: nextPage,
-              previewPage: previewPage,
-              nomeLuogo: nomeLuogo,
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => MyPage(
+                child: AggiungiOrario(
+                  indexLuogo: indexLuogo,
+                ),
+              ),
             ),
           );
         },
@@ -76,13 +80,19 @@ class OrariPage extends StatelessWidget {
         backgroundColor: const Color(0XFF4C8F38),
         child: const Icon(Icons.event_available),
       ),
-      body: const Orari(),
+      body: Orari(
+        indexLuogo: indexLuogo,
+      ),
     );
   }
 }
 
 class Orari extends StatefulWidget {
-  const Orari({Key? key}) : super(key: key);
+  final int indexLuogo;
+  const Orari({
+    Key? key,
+    required this.indexLuogo,
+  }) : super(key: key);
 
   @override
   State<Orari> createState() => _OrariState();
@@ -93,37 +103,44 @@ class _OrariState extends State<Orari> {
   Widget build(BuildContext context) {
     return ListView(
       children: [
-        for (int i = 0; i < 20; i++)
-          OrariItem(
-            key: Key("Account$i"),
+        ...List.generate(
+          luoghi[widget.indexLuogo].orari.length,
+          (index) => OrariItem(
+            key: Key(
+              "Orari${widget.indexLuogo}$index",
+            ),
+            indexLuogo: widget.indexLuogo,
+            indexOrario: index,
+            onVote: () {
+              setState(() {
+                luoghi[widget.indexLuogo].orari.sort(
+                      (a, b) => b.voto.compareTo(a.voto),
+                    );
+              });
+            },
           ),
+        )
       ],
     );
   }
 }
 
 class OrariItem extends StatefulWidget {
-  const OrariItem({Key? key}) : super(key: key);
+  final int indexLuogo;
+  final int indexOrario;
+  final Function onVote;
+  const OrariItem({
+    Key? key,
+    required this.indexLuogo,
+    required this.indexOrario,
+    required this.onVote,
+  }) : super(key: key);
 
   @override
   State<OrariItem> createState() => _OrariItemState();
 }
 
 class _OrariItemState extends State<OrariItem> {
-  int vote = 0;
-
-  upVote() {
-    setState(() {
-      vote = vote + 1;
-    });
-  }
-
-  downVote() {
-    setState(() {
-      vote = vote - 1;
-    });
-  }
-
   @override
   Widget build(BuildContext context) {
     return Flex(
@@ -134,16 +151,38 @@ class _OrariItemState extends State<OrariItem> {
           children: [
             IconButton(
               onPressed: () {
-                upVote();
+                luoghi[widget.indexLuogo]
+                    .orari[widget.indexOrario]
+                    .upVote(utenteLoggato);
+                widget.onVote();
               },
-              icon: const Icon(Icons.arrow_drop_up),
+              icon: Icon(
+                Icons.arrow_drop_up,
+                color: luoghi[widget.indexLuogo]
+                            .orari[widget.indexOrario]
+                            .getVoto(utenteLoggato) ==
+                        1
+                    ? Colors.green
+                    : Colors.black,
+              ),
             ),
-            Text(vote.toString()),
+            Text("${luoghi[widget.indexLuogo].orari[widget.indexOrario].voto}"),
             IconButton(
               onPressed: () {
-                downVote();
+                luoghi[widget.indexLuogo]
+                    .orari[widget.indexOrario]
+                    .downVoto(utenteLoggato);
+                widget.onVote();
               },
-              icon: const Icon(Icons.arrow_drop_down),
+              icon: Icon(
+                Icons.arrow_drop_down,
+                color: luoghi[widget.indexLuogo]
+                            .orari[widget.indexOrario]
+                            .getVoto(utenteLoggato) ==
+                        -1
+                    ? Colors.red
+                    : Colors.black,
+              ),
             ),
           ],
         ),
@@ -157,17 +196,32 @@ class _OrariItemState extends State<OrariItem> {
                 children: [
                   Flex(
                     direction: Axis.horizontal,
-                    children: const [
-                      CircleAvatar(
-                        radius: 12,
-                        child: Icon(
-                          Icons.person,
-                          size: 15,
-                        ),
+                    children: [
+                      Icon(
+                        Icons.workspace_premium,
+                        color: luoghi[widget.indexLuogo]
+                                    .orari[widget.indexOrario]
+                                    .utente
+                                    .rank ==
+                                1
+                            ? const Color(0XFFD27C2C)
+                            : luoghi[widget.indexLuogo]
+                                        .orari[widget.indexOrario]
+                                        .utente
+                                        .rank ==
+                                    2
+                                ? const Color(0XFFC4C4C4)
+                                : luoghi[widget.indexLuogo]
+                                            .orari[widget.indexOrario]
+                                            .utente
+                                            .rank ==
+                                        3
+                                    ? const Color(0XFFFFC700)
+                                    : Colors.black,
                       ),
                       Text(
-                        "Utente x",
-                        style: TextStyle(
+                        "${luoghi[widget.indexLuogo].orari[widget.indexOrario].utente.nome} ${luoghi[widget.indexLuogo].orari[widget.indexOrario].utente.cognome}",
+                        style: const TextStyle(
                           fontWeight: FontWeight.bold,
                         ),
                       ),
@@ -175,16 +229,33 @@ class _OrariItemState extends State<OrariItem> {
                   ),
                 ],
               ),
-              const Text(
-                "Lorem ipsum dolor sit amet, consectetur adipiscing elit.",
+              SizedBox(
+                width: double.infinity,
+                child: Text(
+                    "${luoghi[widget.indexLuogo].orari[widget.indexOrario].getOrarioOggi()} ${luoghi[widget.indexLuogo].orari[widget.indexOrario].informazioni}"),
               ),
             ],
           ),
         ),
-        const Icon(
-          Icons.info_outline,
-          color: Colors.black,
-          size: 50,
+        IconButton(
+          iconSize: 50,
+          onPressed: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => MyPage(
+                  child: VisualizzaOrario(
+                    indexLuogo: widget.indexLuogo,
+                    indexOrario: widget.indexOrario,
+                  ),
+                ),
+              ),
+            );
+          },
+          icon: const Icon(
+            Icons.info_outline,
+            color: Colors.black,
+          ),
         )
       ],
     );

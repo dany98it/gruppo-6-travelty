@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:travelty/utente.dart';
 
 class Profilo extends StatelessWidget {
-  final Function nextPage;
-  final Function previewPage;
-  const Profilo({Key? key, required this.nextPage, required this.previewPage})
-      : super(key: key);
+  const Profilo({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +12,7 @@ class Profilo extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            previewPage();
+            Navigator.pop(context);
           },
           icon: const Icon(
             Icons.arrow_back,
@@ -20,11 +20,13 @@ class Profilo extends StatelessWidget {
           ),
         ),
         backgroundColor: const Color(0XFF5BA942),
-        title: const Text(
-          "Profilo",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        title: const Center(
+          child: Text(
+            "Profilo",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         actions: const [
@@ -64,9 +66,9 @@ class Profilo extends StatelessWidget {
               ),
             ],
           ),
-          const Text(
-            "Username",
-            style: TextStyle(
+          Text(
+            "${utenteLoggato.nome} ${utenteLoggato.cognome}",
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 40,
             ),
@@ -75,20 +77,28 @@ class Profilo extends StatelessWidget {
             direction: Axis.horizontal,
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(
-                Icons.medical_information,
+              Icon(
+                Icons.workspace_premium,
+                color: utenteLoggato.rank == 1
+                    ? const Color(0XFFD27C2C)
+                    : utenteLoggato.rank == 2
+                        ? const Color(0XFFC4C4C4)
+                        : utenteLoggato.rank == 3
+                            ? const Color(0XFFFFC700)
+                            : Colors.black,
               ),
               Flex(
                 direction: Axis.vertical,
                 crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
+                children: [
                   Text(
-                    "Reputazione",
-                    style: TextStyle(
+                    "Reputazione: ${utenteLoggato.rank}",
+                    style: const TextStyle(
                       fontWeight: FontWeight.bold,
+                      fontSize: 20,
                     ),
                   ),
-                  Text("Novizio"),
+                  Text("Esperienza: ${utenteLoggato.esperienza}"),
                 ],
               ),
             ],
@@ -115,10 +125,30 @@ class AccountList extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate(
                 [
-                  for (int i = 0; i < 20; i++)
-                    AccountItem(
-                      key: Key("Account$i"),
-                    ),
+                  AccountItem(
+                    title: "Nome",
+                    subtitle: utenteLoggato.nome,
+                  ),
+                  AccountItem(
+                    title: "Cognome",
+                    subtitle: utenteLoggato.cognome,
+                  ),
+                  AccountItem(
+                    title: "Data di nascita",
+                    subtitle: utenteLoggato.dataNascita,
+                  ),
+                  AccountItem(
+                    title: "Email",
+                    subtitle: utenteLoggato.email,
+                  ),
+                  AccountItem(
+                    title: "Nome",
+                    subtitle: utenteLoggato.nome,
+                  ),
+                  const AccountItem(
+                    title: "Password",
+                    subtitle: "***************************",
+                  ),
                 ],
               ),
             )),
@@ -127,47 +157,29 @@ class AccountList extends StatelessWidget {
   }
 }
 
-class AccountItem extends StatefulWidget {
-  const AccountItem({Key? key}) : super(key: key);
-
-  @override
-  State<AccountItem> createState() => _AccountItemState();
-}
-
-class _AccountItemState extends State<AccountItem> {
-  bool b = false;
-
-  void change() {
-    setState(() {
-      b = !b;
-    });
-  }
+class AccountItem extends StatelessWidget {
+  final String title;
+  final String subtitle;
+  const AccountItem({
+    Key? key,
+    required this.title,
+    required this.subtitle,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return ListTile(
       title: Column(
-        children: const [
+        children: [
           Text(
-            "Nome",
-            style: TextStyle(
+            title,
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
             ),
           ),
-          Text("Mario")
+          Text(subtitle)
         ],
-      ),
-      trailing: IconButton(
-        icon: const Icon(Icons.edit),
-        onPressed: () {},
-      ),
-      leading: const CircleAvatar(
-        backgroundColor: Color(0XFFB9B9B9),
-        child: Icon(
-          Icons.person,
-          color: Colors.white,
-        ),
       ),
     );
   }

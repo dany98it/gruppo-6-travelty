@@ -1,10 +1,11 @@
 import 'package:flutter/material.dart';
 
+List<bool> _impostazioni = [false, false, false, false];
+
 class Setting extends StatelessWidget {
-  final Function nextPage;
-  final Function previewPage;
-  const Setting({Key? key, required this.nextPage, required this.previewPage})
-      : super(key: key);
+  const Setting({
+    Key? key,
+  }) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
@@ -12,7 +13,7 @@ class Setting extends StatelessWidget {
       appBar: AppBar(
         leading: IconButton(
           onPressed: () {
-            previewPage();
+            Navigator.pop(context);
           },
           icon: const Icon(
             Icons.arrow_back,
@@ -20,11 +21,13 @@ class Setting extends StatelessWidget {
           ),
         ),
         backgroundColor: const Color(0XFF5BA942),
-        title: const Text(
-          "Impostazioni",
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
+        title: const Center(
+          child: Text(
+            "Impostazioni",
+            style: TextStyle(
+              color: Colors.white,
+              fontWeight: FontWeight.bold,
+            ),
           ),
         ),
         actions: const [
@@ -46,14 +49,16 @@ class Setting extends StatelessWidget {
             child: SettingList(),
           ),
           Padding(
-            padding: const EdgeInsets.only(top: 10, bottom: 50),
-            child: IntrinsicWidth(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  TextButton(
-                    style: TextButton.styleFrom(
-                      backgroundColor: const Color(0XFF4C8F38),
+            padding:
+                const EdgeInsets.only(top: 10, bottom: 50, left: 15, right: 15),
+            child: Column(
+              children: [
+                SizedBox(
+                  height: 50,
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    style: ElevatedButton.styleFrom(
+                      primary: const Color(0XFF4C8F38),
                     ),
                     onPressed: () {},
                     child: const Text(
@@ -64,11 +69,15 @@ class Setting extends StatelessWidget {
                       ),
                     ),
                   ),
-                  Padding(
-                    padding: const EdgeInsets.only(top: 10),
-                    child: TextButton(
-                      style: TextButton.styleFrom(
-                        backgroundColor: const Color(0XFF4C8F38),
+                ),
+                Padding(
+                  padding: const EdgeInsets.only(top: 10),
+                  child: SizedBox(
+                    height: 50,
+                    width: double.infinity,
+                    child: ElevatedButton(
+                      style: ElevatedButton.styleFrom(
+                        primary: const Color(0XFF4C8F38),
                       ),
                       onPressed: () {},
                       child: const Text(
@@ -80,8 +89,8 @@ class Setting extends StatelessWidget {
                       ),
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],
@@ -103,10 +112,30 @@ class SettingList extends StatelessWidget {
             sliver: SliverList(
               delegate: SliverChildListDelegate(
                 [
-                  for (int i = 0; i < 20; i++)
-                    SettingItem(
-                      key: Key("Setting$i"),
-                    ),
+                  const SettingItem(
+                    key: Key("Setting0"),
+                    index: 0,
+                    title: "Privacy",
+                    subtitle: "Invia feedback agli sviluppatori",
+                  ),
+                  const SettingItem(
+                    key: Key("Setting1"),
+                    index: 1,
+                    title: "Tema(WIP)",
+                    subtitle: "Tema chiaro/scruro",
+                  ),
+                  const SettingItem(
+                    key: Key("Setting2"),
+                    index: 2,
+                    title: "Dati(WIP)",
+                    subtitle: "Consenti utilizzo dati cellulare",
+                  ),
+                  const SettingItem(
+                    key: Key("Setting3"),
+                    index: 3,
+                    title: "Mappa Offline(WIP)",
+                    subtitle: "Visualizza mappa offline",
+                  ),
                 ],
               ),
             )),
@@ -116,7 +145,15 @@ class SettingList extends StatelessWidget {
 }
 
 class SettingItem extends StatefulWidget {
-  const SettingItem({Key? key}) : super(key: key);
+  final int index;
+  final String title;
+  final String subtitle;
+  const SettingItem(
+      {Key? key,
+      required this.index,
+      required this.title,
+      required this.subtitle})
+      : super(key: key);
 
   @override
   State<SettingItem> createState() => _SettingItemState();
@@ -125,9 +162,16 @@ class SettingItem extends StatefulWidget {
 class _SettingItemState extends State<SettingItem> {
   bool b = false;
 
+  @override
+  void initState() {
+    b = _impostazioni[widget.index];
+    super.initState();
+  }
+
   void change() {
     setState(() {
       b = !b;
+      _impostazioni[widget.index] = !_impostazioni[widget.index];
     });
   }
 
@@ -135,15 +179,15 @@ class _SettingItemState extends State<SettingItem> {
   Widget build(BuildContext context) {
     return ListTile(
       title: Column(
-        children: const [
+        children: [
           Text(
-            "Privacy",
-            style: TextStyle(
+            widget.title,
+            style: const TextStyle(
               fontWeight: FontWeight.bold,
               fontSize: 20,
             ),
           ),
-          Text("Invia feedback agli sviluppatori")
+          Text(widget.subtitle)
         ],
       ),
       trailing: Switch(
